@@ -1,4 +1,4 @@
-module github.com/fixme_my_friend/hw01_hello_otus
+module github.com/mmart-pro/otusGo/tree/master/hw01_hello_otus
 
 go 1.18
 
