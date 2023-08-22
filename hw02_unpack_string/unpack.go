@@ -14,27 +14,28 @@ func Unpack(src string) (string, error) {
 	var bld strings.Builder
 
 	for _, current := range src {
+		// цифра
 		if unicode.IsDigit(current) {
-			// цифра
-			if prev != 0 {
-				// есть предыдущий - повторяем n раз
-				cnt, err := strconv.Atoi(string(current))
-				if err != nil {
-					return "", err
-				}
-				bld.WriteString(strings.Repeat(string(prev), cnt))
-				prev = 0
-			} else {
-				// нет предыдущего - ошибка
+			// нет предыдущего - ошибка
+			if prev == 0 {
 				return "", ErrInvalidString
 			}
-		} else {
-			// не цифра
-			if prev != 0 {
-				bld.WriteRune(prev)
+
+			// есть предыдущий - повторяем n раз
+			cnt, err := strconv.Atoi(string(current))
+			if err != nil {
+				return "", err
 			}
-			prev = current
+			bld.WriteString(strings.Repeat(string(prev), cnt))
+			prev = 0
+			continue
 		}
+
+		// не цифра
+		if prev != 0 {
+			bld.WriteRune(prev)
+		}
+		prev = current
 	}
 
 	if prev != 0 {
