@@ -78,7 +78,8 @@ func TestTop10(t *testing.T) {
 				"если",      // 4
 				"кристофер", // 4
 				"не",        // 4
-			}},
+			},
+		},
 		{
 			text: "cat and dog, one dog,two cats and one man",
 			expected: []string{
