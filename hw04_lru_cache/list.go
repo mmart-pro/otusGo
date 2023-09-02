@@ -29,7 +29,7 @@ type list struct {
 
 func (l list) String() string {
 	s := &strings.Builder{}
-	len := 0
+	cnt := 0
 	i := l.first
 	for i != nil {
 		if i.Prev != nil {
@@ -43,10 +43,10 @@ func (l list) String() string {
 		} else {
 			s.WriteString("nil) ")
 		}
-		len++
+		cnt++
 		i = i.Next
 	}
-	return fmt.Sprintf("len: %v [ %v]", len, s.String())
+	return fmt.Sprintf("len: %v [ %v]", cnt, s.String())
 }
 
 func (l *list) Len() int {
