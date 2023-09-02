@@ -49,8 +49,50 @@ func TestCache(t *testing.T) {
 		require.Nil(t, val)
 	})
 
+	// 	- на логику выталкивания элементов из-за размера очереди
+	// (например: n = 3, добавили 4 элемента - 1й из кэша вытолкнулся);
+	// - на логику выталкивания давно используемых элементов
+	// (например: n = 3, добавили 3 элемента, обратились несколько раз к разным элементам:
+	// изменили значение, получили значение и пр. - добавили 4й элемент,
+	// из первой тройки вытолкнется тот элемент, что был затронут наиболее давно
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(3)
+		c.Set("a", 1)
+		c.Set("b", 2)
+		c.Set("c", 3)
+		c.Set("d", 4)
+		_, found := c.Get("a")
+		require.False(t, found)
+
+		c.Get("b")
+		c.Get("c")
+		c.Set("e", 5)
+		_, found = c.Get("d")
+		require.False(t, found)
+		v, found := c.Get("e")
+		require.True(t, found)
+		require.Equal(t, 5, v)
+
+		c.Clear()
+		c.Set("aa", 1)
+		c.Set("bb", 2)
+		c.Set("cc", 3)
+		_, found = c.Get("cc")
+		require.True(t, found)
+		c.Set("bb", -2)
+		c.Set("aa", -1)
+		c.Set("dd", 0)
+		_, found = c.Get("cc")
+		require.False(t, found) // с пропало
+		v, found = c.Get("aa")
+		require.True(t, found)
+		require.Equal(t, -1, v)
+		v, found = c.Get("bb")
+		require.True(t, found)
+		require.Equal(t, -2, v)
+		v, found = c.Get("dd")
+		require.True(t, found)
+		require.Equal(t, 0, v)
 	})
 }
 
