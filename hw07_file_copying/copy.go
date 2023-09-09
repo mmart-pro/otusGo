@@ -20,7 +20,7 @@ const (
 	// какой порцией копируется файл (занижено специально)
 	ChunkSize int64 = 133
 	// задержка после копирования блока (для процентиков)
-	SleepTime = 50
+	SleepTime = 10
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
@@ -45,7 +45,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	// назначение
-	dstFile, err := os.OpenFile(toPath, os.O_CREATE|os.O_WRONLY, 0o666)
+	dstFile, err := os.OpenFile(toPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o666)
 	if err != nil {
 		return err
 	}
