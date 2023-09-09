@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"time"
@@ -15,20 +14,16 @@ var (
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
 
-var (
-	// скрывать progressBar (для тестов)
-	HideProgress = false
-)
+var HideProgress = false // скрывать progressBar (для тестов)
 
 const (
 	// какой порцией копируется файл (занижено специально)
-	CHUNK_SIZE int64 = 133
+	ChunkSize int64 = 133
 	// задержка после копирования блока (для процентиков)
-	SLEEP_TIME = 50
+	SleepTime = 50
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
-	fmt.Println("COPY ===> from: ", fromPath, "to: ", toPath, "offset: ", offset, "limit: ", limit)
 	// источник
 	srcFile, err := os.Open(fromPath)
 	if err != nil {
@@ -50,7 +45,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	// назначение
-	dstFile, err := os.OpenFile(toPath, os.O_CREATE, 0666)
+	dstFile, err := os.OpenFile(toPath, os.O_CREATE|os.O_WRONLY, 0o666)
 	if err != nil {
 		return err
 	}
@@ -73,15 +68,15 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	copied := int64(0)
 	for {
 		toCopy := total - copied
-		if toCopy > CHUNK_SIZE {
-			toCopy = CHUNK_SIZE
+		if toCopy > ChunkSize {
+			toCopy = ChunkSize
 		}
 		wr, werr := io.CopyN(dstFile, srcFile, toCopy)
 		copied += wr
 
 		if !HideProgress {
 			bar.SetCurrent(copied)
-			time.Sleep(time.Millisecond * SLEEP_TIME)
+			time.Sleep(time.Millisecond * SleepTime)
 		}
 
 		if werr != nil {
