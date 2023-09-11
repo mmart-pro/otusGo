@@ -72,6 +72,9 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 			toCopy = ChunkSize
 		}
 		wr, werr := io.CopyN(dstFile, srcFile, toCopy)
+		if werr != nil {
+			return werr
+		}
 		copied += wr
 
 		if !HideProgress {
@@ -79,9 +82,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 			time.Sleep(time.Millisecond * SleepTime)
 		}
 
-		if werr != nil {
-			return werr
-		} else if copied == total {
+		if copied == total {
 			break
 		}
 	}
