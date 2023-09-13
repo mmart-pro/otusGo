@@ -37,48 +37,52 @@ var (
 	state                  *errorState
 )
 
+func producer(tasks *[]Task, tasksChannel chan<- Task) {
+	defer wg.Done()
+	defer close(tasksChannel)
+
+	for i := 0; i < len(*tasks); {
+		select {
+		case <-state.errorChannel:
+			return
+		default:
+			if cap(tasksChannel) > len(tasksChannel) {
+				tasksChannel <- (*tasks)[i]
+				i++
+			}
+		}
+	}
+}
+
+func consumer(tasksChannel <-chan Task) {
+	defer wg.Done()
+	for {
+		select {
+		case <-state.errorChannel:
+			return
+		default:
+			task, ok := <-tasksChannel
+			if !ok {
+				return
+			}
+
+			if err := task(); err != nil {
+				state.incErrorCnt()
+			}
+		}
+	}
+}
+
 func Run(tasks []Task, n, m int) error {
 	state = newRunState(m)
 	tasksChannel := make(chan Task, n)
 
 	// producer
-	go func() {
-		defer wg.Done()
-		defer close(tasksChannel)
-
-		for i := 0; i < len(tasks); {
-			select {
-			case <-state.errorChannel:
-				return
-			default:
-				if cap(tasksChannel) > len(tasksChannel) {
-					tasksChannel <- tasks[i]
-					i++
-				}
-			}
-		}
-	}()
+	go producer(&tasks, tasksChannel)
 
 	// consumers
 	for i := 0; i < n; i++ {
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case <-state.errorChannel:
-					return
-				default:
-					task, ok := <-tasksChannel
-					if !ok {
-						return
-					}
-
-					if err := task(); err != nil {
-						state.incErrorCnt()
-					}
-				}
-			}
-		}()
+		go consumer(tasksChannel)
 	}
 
 	wg.Add(n + 1)
