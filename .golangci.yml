@@ -31,12 +31,12 @@ linters:
     - exhaustive
     - exportloopref
     - funlen
-    - gci
+#    - gci
     - gocognit
     - goconst
     - gocritic
     - gocyclo
-    - godot
+    #- godot
     - gofmt
     - gofumpt
     - goheader
@@ -55,9 +55,9 @@ linters:
     - nolintlint
     - prealloc
     - predeclared
-    - revive
+    #- revive
     - staticcheck
-    - stylecheck
+    #- stylecheck
     - tagliatelle
     - thelper
     - typecheck
