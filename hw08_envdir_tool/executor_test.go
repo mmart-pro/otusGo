@@ -17,7 +17,7 @@ func TestStdOutErr(t *testing.T) {
 		exitCode, std := stdWrapper(t, []string{"rm", "."}, Environment{})
 		require.Equal(t, 1, exitCode)
 		// косяк... разные ОС, разные сообщения...
-		//require.Equal(t, `rm: "." and ".." may not be removed`+"\n", std.err)
+		// require.Equal(t, `rm: "." and ".." may not be removed`+"\n", std.err)
 		require.NotEmpty(t, std.err)
 	})
 	t.Run("Test stdout", func(t *testing.T) {
