@@ -30,5 +30,44 @@ From
 NC'
 fileEquals /tmp/telnet.out "${expected_telnet_out}"
 
+# ctrl + c in telinet client
+echo -e ============= ctrl + c in telinet client ==============
+(echo -e "Hello\nFrom\nNC\n" && cat 2>/dev/null) | nc -l localhost 4242 >/tmp/nc.out &
+NC_PID=$!
+
+(echo -e "I\nam\nTELNET client\n" && cat 2>/dev/null) | ./go-telnet --timeout=5s localhost 4242 >/tmp/telnet.out &
+TL_PID=$!
+
+sleep 1
+kill -s INT ${TL_PID} 2>/dev/null || true
+sleep 1
+if ps -p $TL_PID > /dev/null
+then
+  echo "ctrl + c is not work!"
+  kill -s INT ${NC_PID}
+  kill -s KILL ${TL_PID}
+  exit 1
+fi
+#
+
+# kill netcat should shutdown telnet client
+echo -e ============= kill netcat should shutdown telnet client ==============
+(echo -e "Hello\nFrom\nNC\n" && cat 2>/dev/null) | nc -l localhost 4242 >/tmp/nc.out &
+NC_PID=$!
+
+(echo -e "I\nam\nTELNET client\n" && cat 2>/dev/null) | ./go-telnet --timeout=5s localhost 4242 >/tmp/telnet.out &
+TL_PID=$!
+
+sleep 1
+kill -s KILL ${NC_PID}
+sleep 1
+
+if ps -p $TL_PID > /dev/null
+then
+  echo "eof from netcat is not work!"
+  exit 1
+fi
+#
+
 rm -f go-telnet
 echo "PASS"
