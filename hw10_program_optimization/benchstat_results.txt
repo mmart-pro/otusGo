@@ -1,0 +1,23 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/mmart-pro/otusGo/hw10_program_optimization
+             │ bench_slow.txt │           bench_fast.txt            │
+             │     sec/op     │    sec/op     vs base               │
+Total-8         94.637m ±  2%   2.118m ±  0%  -97.76% (p=0.001 n=7)
+GetUsers-8       268.6µ ± 11%   314.4µ ± 13%  +17.06% (p=0.001 n=7)
+GetDomains-8    98.301m ±  4%   1.255m ±  1%  -98.72% (p=0.001 n=7)
+geomean          13.57m         942.0µ        -93.06%
+
+             │  bench_slow.txt   │            bench_fast.txt            │
+             │       B/op        │     B/op      vs base                │
+Total-8        132856.561Ki ± 0%   7.191Ki ± 1%   -99.99% (p=0.001 n=7)
+GetUsers-8            809.0 ± 0%    4096.0 ± 0%  +406.30% (p=0.001 n=7)
+GetDomains-8   132850.415Ki ± 0%   1.759Ki ± 2%  -100.00% (p=0.001 n=7)
+geomean             2.351Mi        3.699Ki        -99.85%
+
+             │ bench_slow.txt  │           bench_fast.txt           │
+             │    allocs/op    │ allocs/op   vs base                │
+Total-8        1700090.00 ± 0%   58.00 ± 0%  -100.00% (p=0.001 n=7)
+GetUsers-8          5.000 ± 0%   1.000 ± 0%   -80.00% (p=0.001 n=7)
+GetDomains-8   1700024.00 ± 0%   25.00 ± 0%  -100.00% (p=0.001 n=7)
+geomean            24.36k        11.32        -99.95%

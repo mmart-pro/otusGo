@@ -1,0 +1,26 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/mmart-pro/otusGo/hw10_program_optimization
+BenchmarkTotal-8        	     571	   2116770 ns/op	    7299 B/op	      58 allocs/op
+BenchmarkTotal-8        	     572	   2122630 ns/op	    7364 B/op	      58 allocs/op
+BenchmarkTotal-8        	     566	   2122789 ns/op	    7365 B/op	      58 allocs/op
+BenchmarkTotal-8        	     573	   2111655 ns/op	    7364 B/op	      58 allocs/op
+BenchmarkTotal-8        	     570	   2113749 ns/op	    7364 B/op	      58 allocs/op
+BenchmarkTotal-8        	     572	   2117558 ns/op	    7364 B/op	      58 allocs/op
+BenchmarkTotal-8        	     573	   2124908 ns/op	    7364 B/op	      58 allocs/op
+BenchmarkGetUsers-8     	    4402	    306327 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkGetUsers-8     	    4096	    324896 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkGetUsers-8     	    4198	    353854 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkGetUsers-8     	    3964	    307156 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkGetUsers-8     	    4123	    316921 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkGetUsers-8     	    3718	    314447 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkGetUsers-8     	    4436	    298090 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkGetDomains-8   	     921	   1274120 ns/op	    1801 B/op	      25 allocs/op
+BenchmarkGetDomains-8   	     916	   1255431 ns/op	    1801 B/op	      25 allocs/op
+BenchmarkGetDomains-8   	     920	   1254184 ns/op	    1801 B/op	      25 allocs/op
+BenchmarkGetDomains-8   	     925	   1254074 ns/op	    1761 B/op	      25 allocs/op
+BenchmarkGetDomains-8   	     919	   1251466 ns/op	    1801 B/op	      25 allocs/op
+BenchmarkGetDomains-8   	     924	   1259827 ns/op	    1801 B/op	      25 allocs/op
+BenchmarkGetDomains-8   	     920	   1263378 ns/op	    1801 B/op	      25 allocs/op
+PASS
+ok  	github.com/mmart-pro/otusGo/hw10_program_optimization	28.756s
