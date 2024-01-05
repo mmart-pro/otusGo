@@ -14,7 +14,7 @@ var (
 	ErrInIntValidation  = errors.New("in int validation failed")
 )
 
-// --------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 type StrValidator interface {
 	Valid(v string) error
@@ -40,18 +40,18 @@ func NewStrValidator(str string) StrValidator {
 	}
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 type LenStrValidator struct {
 	len int
 }
 
 func NewLenStrValidator(str string) *LenStrValidator {
-	len, err := strconv.Atoi(str)
+	reqLen, err := strconv.Atoi(str)
 	if err != nil {
 		return nil
 	}
-	return &LenStrValidator{len: len}
+	return &LenStrValidator{len: reqLen}
 }
 
 func (lenv LenStrValidator) Valid(v string) error {
@@ -61,7 +61,7 @@ func (lenv LenStrValidator) Valid(v string) error {
 	return nil
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 type RegexpStrValidator struct {
 	regexp *regexp.Regexp
@@ -85,7 +85,7 @@ func (validator RegexpStrValidator) Valid(v string) error {
 	return nil
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 
 type InStrValidator struct {
 	values []string
