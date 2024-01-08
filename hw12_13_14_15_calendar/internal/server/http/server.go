@@ -2,30 +2,61 @@ package internalhttp
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 )
 
-type Server struct { // TODO
+type Server struct {
+	addr   Endpointer
+	logger Logger
+	app    Application
+	server *http.Server
 }
 
-type Logger interface { // TODO
+type Logger interface {
+	Debugf(msg string, args ...interface{})
+	Infof(msg string, args ...interface{})
+	Errorf(msg string, args ...interface{})
+	Fatalf(msg string, args ...interface{})
 }
 
-type Application interface { // TODO
+type Application interface {
 }
 
-func NewServer(logger Logger, app Application) *Server {
-	return &Server{}
+type Endpointer interface {
+	GetEndpoint() string
+}
+
+func NewServer(addr Endpointer, logger Logger, app Application) *Server {
+	return &Server{
+		addr:   addr,
+		logger: logger,
+		app:    app,
+	}
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	// TODO
-	<-ctx.Done()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/hello", hello)
+
+	addr := s.addr.GetEndpoint()
+	s.server = &http.Server{
+		Addr:    addr,
+		Handler: loggingMiddleware(mux, s.logger),
+	}
+
+	s.logger.Debugf("starting http on %s", addr)
+	err := s.server.ListenAndServe()
+	if err != http.ErrServerClosed {
+		return err
+	}
 	return nil
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	// TODO
-	return nil
+	return s.server.Shutdown(ctx)
 }
 
-// TODO
+func hello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
+}
