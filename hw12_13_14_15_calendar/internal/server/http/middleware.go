@@ -28,6 +28,7 @@ func loggingMiddleware(next http.Handler, logger Logger) http.Handler {
 		wd := NewResponseWriterDecorator(w)
 		next.ServeHTTP(wd, r)
 		// ip method path http response_code latency [user_agent]
-		logger.Debugf("%s %s %s %s %d %v [%s]", r.RemoteAddr, r.Method, r.URL.Path, r.Proto, wd.statusCode, time.Since(start), r.UserAgent())
+		logger.Debugf("%s %s %s %s %d %v [%s]",
+			r.RemoteAddr, r.Method, r.URL.Path, r.Proto, wd.statusCode, time.Since(start), r.UserAgent())
 	})
 }

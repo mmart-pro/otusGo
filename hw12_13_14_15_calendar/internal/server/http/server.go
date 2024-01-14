@@ -4,6 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
+)
+
+const (
+	READ_HEADER_TIMEOUT = time.Second * 5
 )
 
 type Server struct {
@@ -21,6 +26,7 @@ type Logger interface {
 }
 
 type Application interface {
+	CreateEvent(ctx context.Context, id, title string) error // temp
 }
 
 type Endpointer interface {
@@ -41,8 +47,9 @@ func (s *Server) Start(ctx context.Context) error {
 
 	addr := s.addr.GetEndpoint()
 	s.server = &http.Server{
-		Addr:    addr,
-		Handler: loggingMiddleware(mux, s.logger),
+		Addr:              addr,
+		Handler:           loggingMiddleware(mux, s.logger),
+		ReadHeaderTimeout: READ_HEADER_TIMEOUT,
 	}
 
 	s.logger.Debugf("starting http on %s", addr)
