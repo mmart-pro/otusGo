@@ -58,7 +58,7 @@ func Validate(v interface{}) error {
 		val := reflect.ValueOf(v).Field(i)
 		// чекаем поле структуры на соответствие значения валидаторам
 		fieldErrors := checkValue(tagValidators, val)
-		if len(fieldErrors) == 0 {
+		if fieldErrors == nil {
 			continue
 		}
 		// вписать ошибки в общий массив ошибок
@@ -81,7 +81,7 @@ func checkValue(tags []string, value reflect.Value) []error {
 		return checkStr(tags, value.String())
 	case reflect.Slice, reflect.Array:
 		if value.Len() == 0 {
-			return []error{} // len = 0 => ok
+			return nil // => ok
 		} else {
 			// это ужасно просто
 			switch value.Index(0).Kind() {

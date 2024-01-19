@@ -40,16 +40,31 @@ type (
 )
 
 func TestErrInvalidArgument(t *testing.T) {
-	err := Validate(0)
-	require.ErrorIs(t, err, ErrInvalidArgument)
-	err = Validate("0")
-	require.ErrorIs(t, err, ErrInvalidArgument)
-	err = Validate([]int{})
-	require.ErrorIs(t, err, ErrInvalidArgument)
-	err = Validate([]struct{}{{}, {}})
-	require.ErrorIs(t, err, ErrInvalidArgument)
-	err = Validate(struct{}{})
-	require.NoError(t, err)
+	tests := []struct {
+		in          interface{}
+		expectedErr error
+	}{
+		{in: 0, expectedErr: ErrInvalidArgument},
+		{in: "0", expectedErr: ErrInvalidArgument},
+		{in: []int{}, expectedErr: ErrInvalidArgument},
+		{in: []struct{}{{}, {}}, expectedErr: ErrInvalidArgument},
+		{in: struct{}{}, expectedErr: nil},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("case %T", tt.in), func(t *testing.T) {
+			tt := tt
+			t.Parallel()
+
+			err := Validate(tt.in)
+			if tt.expectedErr == nil {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+				require.Equal(t, tt.expectedErr, err)
+			}
+		})
+	}
 }
 
 func TestErrInvalidValidator(t *testing.T) {
