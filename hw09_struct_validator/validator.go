@@ -1,11 +1,11 @@
 package hw09structvalidator
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 
+	"github.com/mmart-pro/otusGo/hw09structvalidator/errs"
 	"github.com/mmart-pro/otusGo/hw09structvalidator/validators"
 )
 
@@ -28,17 +28,11 @@ func (v ValidationErrors) Error() string {
 	return builder.String()
 }
 
-var (
-	ErrInvalidArgument  = errors.New("invalid argument, struct expected")
-	ErrInvalidValidator = errors.New("invalid or unsupported validator")
-	ErrUnsupportedType  = errors.New("invalid or unsupported type")
-)
-
 func Validate(v interface{}) error {
 	typ := reflect.TypeOf(v)
 	kind := typ.Kind()
 	if kind != reflect.Struct {
-		return ErrInvalidArgument
+		return errs.ErrInvalidArgument
 	}
 
 	errs := ValidationErrors{}
@@ -57,7 +51,10 @@ func Validate(v interface{}) error {
 		tagValidators := strings.Split(tag, "|")
 		val := reflect.ValueOf(v).Field(i)
 		// чекаем поле структуры на соответствие значения валидаторам
-		fieldErrors := checkValue(tagValidators, val)
+		fieldErrors, err := checkValue(tagValidators, val)
+		if err != nil {
+			return err
+		}
 		if fieldErrors == nil {
 			continue
 		}
@@ -73,7 +70,7 @@ func Validate(v interface{}) error {
 	return errs
 }
 
-func checkValue(tags []string, value reflect.Value) []error {
+func checkValue(tags []string, value reflect.Value) ([]error, error) {
 	switch value.Kind() {
 	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int:
 		return checkInt(tags, value.Int())
@@ -81,7 +78,7 @@ func checkValue(tags []string, value reflect.Value) []error {
 		return checkStr(tags, value.String())
 	case reflect.Slice, reflect.Array:
 		if value.Len() == 0 {
-			return nil // => ok
+			return nil, nil // => ok
 		} else {
 			// это ужасно просто
 			switch value.Index(0).Kind() {
@@ -89,51 +86,57 @@ func checkValue(tags []string, value reflect.Value) []error {
 				result := make([]error, 0)
 				for i := 0; i < value.Len(); i++ {
 					el := value.Index(i)
-					result = append(result, checkInt(tags, el.Int())...)
+					fieldErrors, err := checkInt(tags, el.Int())
+					if err != nil {
+						return nil, err
+					}
+					result = append(result, fieldErrors...)
 				}
-				return result
+				return result, nil
 			case reflect.String:
 				result := make([]error, 0)
 				for i := 0; i < value.Len(); i++ {
 					el := value.Index(i)
-					result = append(result, checkStr(tags, el.String())...)
+					fieldErrors, err := checkStr(tags, el.String())
+					if err != nil {
+						return nil, err
+					}
+					result = append(result, fieldErrors...)
 				}
-				return result
+				return result, nil
 			default:
-				return []error{ErrUnsupportedType}
+				return nil, errs.ErrUnsupportedType
 			}
 		}
 	default:
-		return []error{ErrUnsupportedType}
+		return nil, errs.ErrUnsupportedType
 	}
 }
 
-func checkInt(tags []string, value int64) []error {
+func checkInt(tags []string, value int64) ([]error, error) {
 	res := []error{}
 	for _, t := range tags {
-		v := validators.NewIntValidator(t)
-		if v == nil {
-			res = append(res, ErrInvalidValidator)
-			continue
+		v, err := validators.NewIntValidator(t)
+		if err != nil {
+			return nil, err
 		}
 		if err := v.Valid(value); err != nil {
 			res = append(res, err)
 		}
 	}
-	return res
+	return res, nil
 }
 
-func checkStr(tags []string, value string) []error {
+func checkStr(tags []string, value string) ([]error, error) {
 	res := []error{}
 	for _, t := range tags {
-		v := validators.NewStrValidator(t)
-		if v == nil {
-			res = append(res, ErrInvalidValidator)
-			continue
+		v, err := validators.NewStrValidator(t)
+		if err != nil {
+			return nil, err
 		}
 		if err := v.Valid(value); err != nil {
 			res = append(res, err)
 		}
 	}
-	return res
+	return res, nil
 }

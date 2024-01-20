@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mmart-pro/otusGo/hw09structvalidator/validators"
+	"github.com/mmart-pro/otusGo/hw09structvalidator/errs"
 	"github.com/stretchr/testify/require"
 )
 
@@ -44,16 +44,16 @@ func TestErrInvalidArgument(t *testing.T) {
 		in          interface{}
 		expectedErr error
 	}{
-		{in: 0, expectedErr: ErrInvalidArgument},
-		{in: "0", expectedErr: ErrInvalidArgument},
-		{in: []int{}, expectedErr: ErrInvalidArgument},
-		{in: []struct{}{{}, {}}, expectedErr: ErrInvalidArgument},
+		{in: 0, expectedErr: errs.ErrInvalidArgument},
+		{in: "0", expectedErr: errs.ErrInvalidArgument},
+		{in: []int{}, expectedErr: errs.ErrInvalidArgument},
+		{in: []struct{}{{}, {}}, expectedErr: errs.ErrInvalidArgument},
 		{in: struct{}{}, expectedErr: nil},
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(fmt.Sprintf("case %T", tt.in), func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			err := Validate(tt.in)
@@ -61,7 +61,7 @@ func TestErrInvalidArgument(t *testing.T) {
 				require.NoError(t, err)
 			} else {
 				require.Error(t, err)
-				require.Equal(t, tt.expectedErr, err)
+				require.ErrorIs(t, tt.expectedErr, err)
 			}
 		})
 	}
@@ -73,7 +73,7 @@ func TestErrInvalidValidator(t *testing.T) {
 	}{
 		Field: 200,
 	})
-	require.ErrorContains(t, err, ErrInvalidValidator.Error())
+	require.ErrorIs(t, err, errs.ErrInvalidValidator)
 }
 
 func TestErrUnsupportedType(t *testing.T) {
@@ -82,7 +82,7 @@ func TestErrUnsupportedType(t *testing.T) {
 	}{
 		Field: 0,
 	})
-	require.ErrorContains(t, err, ErrUnsupportedType.Error())
+	require.ErrorIs(t, err, errs.ErrUnsupportedType)
 }
 
 func TestValidate(t *testing.T) {
@@ -97,11 +97,11 @@ func TestValidate(t *testing.T) {
 		},
 		{
 			in:          Response{Code: 202},
-			expectedErr: ValidationErrors{ValidationError{Field: "Code", Err: validators.ErrInIntValidation}},
+			expectedErr: ValidationErrors{ValidationError{Field: "Code", Err: errs.ErrInIntValidation}},
 		},
 		{
 			in:          Response{},
-			expectedErr: ValidationErrors{ValidationError{Field: "Code", Err: validators.ErrInIntValidation}},
+			expectedErr: ValidationErrors{ValidationError{Field: "Code", Err: errs.ErrInIntValidation}},
 		},
 		// Token
 		{
@@ -119,15 +119,15 @@ func TestValidate(t *testing.T) {
 		},
 		{
 			in:          App{},
-			expectedErr: ValidationErrors{ValidationError{Field: "Version", Err: validators.ErrLenValidation}},
+			expectedErr: ValidationErrors{ValidationError{Field: "Version", Err: errs.ErrLenValidation}},
 		},
 		{
 			in:          App{Version: "1234"},
-			expectedErr: ValidationErrors{ValidationError{Field: "Version", Err: validators.ErrLenValidation}},
+			expectedErr: ValidationErrors{ValidationError{Field: "Version", Err: errs.ErrLenValidation}},
 		},
 		{
 			in:          App{Version: "123456"},
-			expectedErr: ValidationErrors{ValidationError{Field: "Version", Err: validators.ErrLenValidation}},
+			expectedErr: ValidationErrors{ValidationError{Field: "Version", Err: errs.ErrLenValidation}},
 		},
 		// User
 		{
@@ -149,7 +149,7 @@ func TestValidate(t *testing.T) {
 				Phones: []string{"79972879197"},
 			},
 			expectedErr: ValidationErrors{
-				ValidationError{"ID", validators.ErrLenValidation},
+				ValidationError{"ID", errs.ErrLenValidation},
 			},
 		},
 		{
@@ -161,8 +161,8 @@ func TestValidate(t *testing.T) {
 				Phones: []string{"79972879197"},
 			},
 			expectedErr: ValidationErrors{
-				ValidationError{"ID", validators.ErrLenValidation},
-				ValidationError{"Age", validators.ErrMinValidation},
+				ValidationError{"ID", errs.ErrLenValidation},
+				ValidationError{"Age", errs.ErrMinValidation},
 			},
 		},
 		{
@@ -174,19 +174,19 @@ func TestValidate(t *testing.T) {
 				Phones: []string{"123", "321"},
 			},
 			expectedErr: ValidationErrors{
-				ValidationError{"ID", validators.ErrLenValidation},
-				ValidationError{"Age", validators.ErrMaxValidation},
-				ValidationError{"Email", validators.ErrRegexpValidation},
-				ValidationError{"Role", validators.ErrInStrValidation},
-				ValidationError{"Phones", validators.ErrLenValidation},
-				ValidationError{"Phones", validators.ErrLenValidation},
+				ValidationError{"ID", errs.ErrLenValidation},
+				ValidationError{"Age", errs.ErrMaxValidation},
+				ValidationError{"Email", errs.ErrRegexpValidation},
+				ValidationError{"Role", errs.ErrInStrValidation},
+				ValidationError{"Phones", errs.ErrLenValidation},
+				ValidationError{"Phones", errs.ErrLenValidation},
 			},
 		},
 	}
 
 	for i, tt := range tests {
+		tt := tt
 		t.Run(fmt.Sprintf("case %T (%d)", tt.in, i), func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			err := Validate(tt.in)

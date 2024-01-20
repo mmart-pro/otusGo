@@ -1,17 +1,11 @@
 package validators
 
 import (
-	"errors"
 	"regexp"
 	"strconv"
 	"strings"
-)
 
-var (
-	// - Для строк:
-	ErrLenValidation    = errors.New("len validation failed")
-	ErrRegexpValidation = errors.New("regexp validation failed")
-	ErrInIntValidation  = errors.New("in int validation failed")
+	"github.com/mmart-pro/otusGo/hw09structvalidator/errs"
 )
 
 // --------------------------------------------------------------------------------------------
@@ -20,10 +14,10 @@ type StrValidator interface {
 	Valid(v string) error
 }
 
-func NewStrValidator(str string) StrValidator {
+func NewStrValidator(str string) (StrValidator, error) {
 	i := strings.Index(str, ":")
 	if i <= 0 {
-		return nil // unsupported validator
+		return nil, errs.ErrInvalidValidator
 	}
 	pref := str[:i]
 	cond := str[i+1:]
@@ -36,7 +30,7 @@ func NewStrValidator(str string) StrValidator {
 	case "in":
 		return NewInStrValidator(cond)
 	default:
-		return nil // unsupported validator
+		return nil, errs.ErrInvalidValidator
 	}
 }
 
@@ -46,17 +40,17 @@ type LenStrValidator struct {
 	len int
 }
 
-func NewLenStrValidator(str string) *LenStrValidator {
+func NewLenStrValidator(str string) (*LenStrValidator, error) {
 	reqLen, err := strconv.Atoi(str)
 	if err != nil {
-		return nil
+		return nil, errs.ErrLenStrValidatorInvalid
 	}
-	return &LenStrValidator{len: reqLen}
+	return &LenStrValidator{len: reqLen}, nil
 }
 
 func (lenv LenStrValidator) Valid(v string) error {
 	if len(v) != lenv.len {
-		return ErrLenValidation
+		return errs.ErrLenValidation
 	}
 	return nil
 }
@@ -67,20 +61,20 @@ type RegexpStrValidator struct {
 	regexp *regexp.Regexp
 }
 
-func NewRegexpStrValidator(str string) *RegexpStrValidator {
+func NewRegexpStrValidator(str string) (*RegexpStrValidator, error) {
 	if str == "" {
-		return nil
+		return nil, errs.ErrRegexpValidatorInvalid
 	}
 	r, err := regexp.Compile(str)
 	if err != nil {
-		return nil
+		return nil, errs.ErrRegexpCompilationError
 	}
-	return &RegexpStrValidator{regexp: r}
+	return &RegexpStrValidator{regexp: r}, nil
 }
 
 func (validator RegexpStrValidator) Valid(v string) error {
 	if !validator.regexp.MatchString(v) {
-		return ErrRegexpValidation
+		return errs.ErrRegexpValidation
 	}
 	return nil
 }
@@ -91,9 +85,12 @@ type InStrValidator struct {
 	values []string
 }
 
-func NewInStrValidator(str string) *InStrValidator {
+func NewInStrValidator(str string) (*InStrValidator, error) {
+	if str == "" {
+		return nil, errs.ErrInStrValidatorInvalid
+	}
 	res := strings.Split(str, ",")
-	return &InStrValidator{values: res}
+	return &InStrValidator{values: res}, nil
 }
 
 func (validator InStrValidator) Valid(v string) error {
@@ -102,5 +99,5 @@ func (validator InStrValidator) Valid(v string) error {
 			return nil
 		}
 	}
-	return ErrInStrValidation
+	return errs.ErrInStrValidation
 }
