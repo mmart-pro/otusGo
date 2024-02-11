@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/model"
 )
 
 const (
@@ -12,10 +14,10 @@ const (
 )
 
 type Server struct {
-	addr   Endpointer
-	logger Logger
-	app    Application
-	server *http.Server
+	addr          Endpointer
+	logger        Logger
+	eventsService EventsService
+	server        *http.Server
 }
 
 type Logger interface {
@@ -25,19 +27,19 @@ type Logger interface {
 	Fatalf(msg string, args ...interface{})
 }
 
-type Application interface {
-	CreateEvent(ctx context.Context, id, title string) error // temp
+type EventsService interface {
+	CreateEvent(ctx context.Context, event model.Event) (int, error)
 }
 
 type Endpointer interface {
 	GetEndpoint() string
 }
 
-func NewServer(addr Endpointer, logger Logger, app Application) *Server {
+func NewServer(addr Endpointer, logger Logger, eventsService EventsService) *Server {
 	return &Server{
-		addr:   addr,
-		logger: logger,
-		app:    app,
+		addr:          addr,
+		logger:        logger,
+		eventsService: eventsService,
 	}
 }
 
