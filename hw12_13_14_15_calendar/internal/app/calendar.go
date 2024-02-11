@@ -35,13 +35,13 @@ func (app Calendar) Startup(ctx context.Context) error {
 	// config
 	cfg, err := config.NewConfig(app.configFile)
 	if err != nil {
-		return fmt.Errorf("error read config: %s\n", err)
+		return fmt.Errorf("error read config: %w", err)
 	}
 
 	// logger
 	logg, err := logger.NewLogger(cfg.LoggerConfig.Level, cfg.LoggerConfig.LogFile)
 	if err != nil {
-		return fmt.Errorf("can't start logg: %s\n", err)
+		return fmt.Errorf("can't start logg: %w", err)
 	}
 	defer logg.Close()
 

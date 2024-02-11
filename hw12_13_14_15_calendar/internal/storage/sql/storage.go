@@ -3,6 +3,7 @@ package sqlstorage
 import (
 	"context"
 	"database/sql"
+	errs "errors"
 	"fmt"
 	"time"
 
@@ -124,7 +125,7 @@ func (s *Storage) GetEvent(ctx context.Context, eventId int) (model.Event, error
 	`
 	ev := model.Event{}
 	err := s.db.GetContext(ctx, &ev, q, eventId)
-	if err == sql.ErrNoRows {
+	if errs.Is(err, sql.ErrNoRows) {
 		return ev, errors.ErrEventNotFound
 	}
 
