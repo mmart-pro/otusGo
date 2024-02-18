@@ -33,6 +33,6 @@ func main() {
 	err := app.NewCalendar(*configFlag).
 		Startup(context.Background())
 	if err != nil {
-		log.Fatal()
+		log.Fatal(err)
 	}
 }

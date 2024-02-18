@@ -29,21 +29,21 @@ func TestLogLevels(t *testing.T) {
 
 func TestLogWrite(t *testing.T) {
 	const (
-		NOT_EXISTS string = "NOT EXISTS"
-		EXISTS     string = "MESSAGE LOGGED"
+		NotExists string = "NOT EXISTS"
+		Exists    string = "MESSAGE LOGGED"
 	)
 
 	str, err := captureStderr(func() {
 		log, err := NewLogger("info", "")
 		require.NoError(t, err)
 		defer log.Close()
-		log.Debugf(NOT_EXISTS)
-		log.Infof(EXISTS)
+		log.Debugf(NotExists)
+		log.Infof(Exists)
 	})
 	require.NoError(t, err)
 
-	require.False(t, strings.Contains(str, NOT_EXISTS))
-	require.True(t, strings.Contains(str, EXISTS))
+	require.False(t, strings.Contains(str, NotExists))
+	require.True(t, strings.Contains(str, Exists))
 	require.True(t, strings.Contains(str, `"level":"info"`))
 }
 

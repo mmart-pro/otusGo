@@ -10,8 +10,8 @@ import (
 )
 
 type Storage struct {
-	mu sync.RWMutex
-
+	mu     sync.RWMutex
+	lastId int
 	events []model.Event
 }
 
@@ -33,13 +33,8 @@ func (s *Storage) InsertEvent(_ context.Context, event model.Event) (int, error)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	var max int
-	for _, v := range s.events {
-		if v.Id > max {
-			max = v.Id
-		}
-	}
-	event.Id = max + 1
+	s.lastId += 1
+	event.Id = s.lastId
 	s.events = append(s.events, event)
 
 	return event.Id, nil

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	READ_HEADER_TIMEOUT = time.Second * 5
+	ReadHeaderTimeout = time.Second * 5
 )
 
 type Server struct {
@@ -18,6 +18,10 @@ type Server struct {
 	logger        Logger
 	eventsService EventsService
 	server        *http.Server
+}
+
+type Endpointer interface {
+	GetEndpoint() string
 }
 
 type Logger interface {
@@ -29,10 +33,6 @@ type Logger interface {
 
 type EventsService interface {
 	CreateEvent(ctx context.Context, event model.Event) (int, error)
-}
-
-type Endpointer interface {
-	GetEndpoint() string
 }
 
 func NewServer(addr Endpointer, logger Logger, eventsService EventsService) *Server {
@@ -51,7 +51,7 @@ func (s *Server) Start(ctx context.Context) error {
 	s.server = &http.Server{
 		Addr:              addr,
 		Handler:           loggingMiddleware(mux, s.logger),
-		ReadHeaderTimeout: READ_HEADER_TIMEOUT,
+		ReadHeaderTimeout: ReadHeaderTimeout,
 	}
 
 	s.logger.Debugf("starting http on %s", addr)
