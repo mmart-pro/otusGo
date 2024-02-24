@@ -9,15 +9,7 @@ import (
 )
 
 type EventsService struct {
-	logger        Logger
 	eventsStorage EventsStorage
-}
-
-type Logger interface {
-	Debugf(msg string, args ...interface{})
-	Infof(msg string, args ...interface{})
-	Errorf(msg string, args ...interface{})
-	Fatalf(msg string, args ...interface{})
 }
 
 type EventsStorage interface {
@@ -30,9 +22,8 @@ type EventsStorage interface {
 	IsTimeFree(ctx context.Context, excludeId int, dateFrom, dateTo time.Time) (bool, error)
 }
 
-func NewEventsService(logger Logger, eventsStorage EventsStorage) *EventsService {
+func NewEventsService(eventsStorage EventsStorage) *EventsService {
 	return &EventsService{
-		logger:        logger,
 		eventsStorage: eventsStorage,
 	}
 }
