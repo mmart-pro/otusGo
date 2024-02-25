@@ -3,7 +3,6 @@ run:
   build-tags:
     - bench
     - !bench
-  concurrency: 2
 
 linters-settings:
   funlen:
