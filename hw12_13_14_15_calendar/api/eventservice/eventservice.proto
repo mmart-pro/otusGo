@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package event;
+
+option go_package = "internal/server/grpc/pb";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+message Event {
+  int32 id = 1;
+  string title = 2;
+  google.protobuf.Timestamp start_datetime = 3;
+  google.protobuf.Timestamp end_datetime = 4;
+  string description = 5;
+  int32 user_id = 6;
+  int32 notify_before_min = 7;
+}
+
+message Events {
+  repeated Event events = 1;
+}
+
+message EventIdRequest {
+  int32 id = 1;
+}
+
+message DateRequest {
+  string date = 1;
+}
+
+message CreateEventResponse {
+  int32 id = 1;
+}
+
+service EventsService {
+  rpc Health(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get: "/health"
+    };
+  };
+  rpc CreateEvent(Event) returns (CreateEventResponse) {
+    option (google.api.http) = {
+      post: "/v1/event"
+      body: "*"
+    };
+  }
+  rpc ModifyEvent(Event) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/event"
+      body: "*"
+    };
+  }
+  rpc RemoveEvent(EventIdRequest) returns (google.protobuf.Empty){
+    option (google.api.http) = {
+      delete: "/v1/event/{id}"
+    };
+  }
+  rpc GetEvent(EventIdRequest) returns (Event) {
+    option (google.api.http) = {
+      get: "/v1/event/{id}"
+    };
+  };
+  rpc GetEventsForDay(DateRequest) returns (Events) {
+    option (google.api.http) = {
+      get: "/v1/events/day/{date}"
+    };
+  };
+  rpc GetEventsForWeek(DateRequest) returns (Events) {
+    option (google.api.http) = {
+      get: "/v1/events/week/{date}"
+    };
+  };
+  rpc GetEventsForMonth(DateRequest) returns (Events) {
+    option (google.api.http) = {
+      get: "/v1/events/month/{date}"
+    };
+  };
+}

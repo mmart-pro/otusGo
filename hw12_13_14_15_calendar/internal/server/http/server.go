@@ -2,11 +2,15 @@ package internalhttp
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/model"
+	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/server/grpc/pb"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 const (
@@ -14,14 +18,11 @@ const (
 )
 
 type Server struct {
-	addr          Endpointer
+	addr          string
+	grpcEndpoint  string
 	logger        Logger
 	eventsService EventsService
 	server        *http.Server
-}
-
-type Endpointer interface {
-	GetEndpoint() string
 }
 
 type Logger interface {
@@ -35,28 +36,54 @@ type EventsService interface {
 	CreateEvent(ctx context.Context, event model.Event) (int, error)
 }
 
-func NewServer(addr Endpointer, logger Logger, eventsService EventsService) *Server {
+func NewServer(addr, grpcEndpoint string, logger Logger, eventsService EventsService) *Server {
 	return &Server{
 		addr:          addr,
 		logger:        logger,
 		eventsService: eventsService,
+		grpcEndpoint:  grpcEndpoint,
 	}
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", hello)
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
-	addr := s.addr.GetEndpoint()
+	// mux := runtime.NewServeMux()
+
+	mux := runtime.NewServeMux(
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+			MarshalOptions: protojson.MarshalOptions{
+				EmitDefaultValues: false,
+				EmitUnpopulated:   true,
+				// UseProtoNames: true,
+			},
+		}),
+	)
+
+	conn, err := grpc.DialContext(
+		context.Background(),
+		s.grpcEndpoint,
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return err
+	}
+
+	err = pb.RegisterEventsServiceHandler(ctx, mux, conn)
+	if err != nil {
+		return err
+	}
+
 	s.server = &http.Server{
-		Addr:              addr,
+		Addr:              s.addr,
 		Handler:           loggingMiddleware(mux, s.logger),
 		ReadHeaderTimeout: ReadHeaderTimeout,
 	}
 
-	s.logger.Debugf("starting http on %s", addr)
-	err := s.server.ListenAndServe()
-	if err != http.ErrServerClosed {
+	s.logger.Debugf("starting http on %s", s.addr)
+	if err := s.server.ListenAndServe(); err != http.ErrServerClosed {
 		return err
 	}
 	return nil
@@ -64,8 +91,4 @@ func (s *Server) Start(ctx context.Context) error {
 
 func (s *Server) Stop(ctx context.Context) error {
 	return s.server.Shutdown(ctx)
-}
-
-func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
 }
