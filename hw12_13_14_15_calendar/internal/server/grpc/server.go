@@ -66,8 +66,8 @@ func (s *Server) Stop() {
 
 func (s *Server) loggerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler) (interface{}, error) {
-
+		handler grpc.UnaryHandler,
+	) (interface{}, error) {
 		startTime := time.Now()
 
 		meta, ok := metadata.FromIncomingContext(ctx)
