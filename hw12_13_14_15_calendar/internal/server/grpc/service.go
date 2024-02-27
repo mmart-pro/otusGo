@@ -27,7 +27,7 @@ func (s *Service) Health(context.Context, *empty.Empty) (*empty.Empty, error) {
 	return &empty.Empty{}, nil
 }
 
-func (s *Service) CreateEvent(ctx context.Context, e *pb.Event) (*pb.CreateEventResponse, error) {
+func (s *Service) CreateEvent(ctx context.Context, e *pb.CreateEventRequest) (*pb.CreateEventResponse, error) {
 	id, err := s.eventsService.CreateEvent(ctx, model.Event{
 		Title:           e.Title,
 		Description:     e.Description,

@@ -62,7 +62,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/eventEvent"
+              "$ref": "#/definitions/eventCreateEventRequest"
             }
           }
         ],
@@ -255,6 +255,33 @@
     }
   },
   "definitions": {
+    "eventCreateEventRequest": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "startDatetime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endDatetime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "notifyBeforeMin": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "eventCreateEventResponse": {
       "type": "object",
       "properties": {

@@ -51,7 +51,7 @@ func local_request_EventsService_Health_0(ctx context.Context, marshaler runtime
 }
 
 func request_EventsService_CreateEvent_0(ctx context.Context, marshaler runtime.Marshaler, client EventsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Event
+	var protoReq CreateEventRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -64,7 +64,7 @@ func request_EventsService_CreateEvent_0(ctx context.Context, marshaler runtime.
 }
 
 func local_request_EventsService_CreateEvent_0(ctx context.Context, marshaler runtime.Marshaler, server EventsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Event
+	var protoReq CreateEventRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {

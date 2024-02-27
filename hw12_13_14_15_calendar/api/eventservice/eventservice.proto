@@ -18,6 +18,15 @@ message Event {
   int32 notify_before_min = 7;
 }
 
+message CreateEventRequest {
+  string title = 1;
+  google.protobuf.Timestamp start_datetime = 2;
+  google.protobuf.Timestamp end_datetime = 3;
+  string description = 4;
+  int32 user_id = 5;
+  int32 notify_before_min = 6;
+}
+
 message Events {
   repeated Event events = 1;
 }
@@ -40,7 +49,7 @@ service EventsService {
       get: "/health"
     };
   };
-  rpc CreateEvent(Event) returns (CreateEventResponse) {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {
     option (google.api.http) = {
       post: "/v1/event"
       body: "*"

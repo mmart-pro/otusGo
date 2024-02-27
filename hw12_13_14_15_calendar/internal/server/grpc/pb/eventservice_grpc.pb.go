@@ -35,7 +35,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EventsServiceClient interface {
 	Health(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*empty.Empty, error)
-	CreateEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*CreateEventResponse, error)
+	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
 	ModifyEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*empty.Empty, error)
 	RemoveEvent(ctx context.Context, in *EventIdRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetEvent(ctx context.Context, in *EventIdRequest, opts ...grpc.CallOption) (*Event, error)
@@ -61,7 +61,7 @@ func (c *eventsServiceClient) Health(ctx context.Context, in *empty.Empty, opts 
 	return out, nil
 }
 
-func (c *eventsServiceClient) CreateEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*CreateEventResponse, error) {
+func (c *eventsServiceClient) CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error) {
 	out := new(CreateEventResponse)
 	err := c.cc.Invoke(ctx, EventsService_CreateEvent_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -129,7 +129,7 @@ func (c *eventsServiceClient) GetEventsForMonth(ctx context.Context, in *DateReq
 // for forward compatibility
 type EventsServiceServer interface {
 	Health(context.Context, *empty.Empty) (*empty.Empty, error)
-	CreateEvent(context.Context, *Event) (*CreateEventResponse, error)
+	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
 	ModifyEvent(context.Context, *Event) (*empty.Empty, error)
 	RemoveEvent(context.Context, *EventIdRequest) (*empty.Empty, error)
 	GetEvent(context.Context, *EventIdRequest) (*Event, error)
@@ -146,7 +146,7 @@ type UnimplementedEventsServiceServer struct {
 func (UnimplementedEventsServiceServer) Health(context.Context, *empty.Empty) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Health not implemented")
 }
-func (UnimplementedEventsServiceServer) CreateEvent(context.Context, *Event) (*CreateEventResponse, error) {
+func (UnimplementedEventsServiceServer) CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEvent not implemented")
 }
 func (UnimplementedEventsServiceServer) ModifyEvent(context.Context, *Event) (*empty.Empty, error) {
@@ -199,7 +199,7 @@ func _EventsService_Health_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _EventsService_CreateEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Event)
+	in := new(CreateEventRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func _EventsService_CreateEvent_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: EventsService_CreateEvent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventsServiceServer).CreateEvent(ctx, req.(*Event))
+		return srv.(EventsServiceServer).CreateEvent(ctx, req.(*CreateEventRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
