@@ -46,8 +46,9 @@ migrate:
 	goose -dir migrations postgres "host=$(STORAGE_HOST) port=$(STORAGE_PORT) user=$(STORAGE_USER) password=$(STORAGE_PASSWORD) dbname=$(STORAGE_DB_NAME) sslmode=disable" up
 
 generate:
-	rm -Rf internal/server/grpc/pb
-	mkdir internal/server/grpc/pb
-	protoc -I ./api --go_out=. --go-grpc_out=. --grpc-gateway_out=. --openapiv2_out=. api/eventservice/eventservice.proto
+	go generate ./...
+#	rm -Rf internal/server/grpc/pb
+#	mkdir internal/server/grpc/pb
+#	protoc -I ./api --go_out=. --go-grpc_out=. --grpc-gateway_out=. --openapiv2_out=. api/eventservice/eventservice.proto
 
 .PHONY: dirs config build run build-img run-img version test lint migrate generate
