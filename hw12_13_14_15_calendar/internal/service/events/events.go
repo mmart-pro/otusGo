@@ -20,6 +20,8 @@ type EventsStorage interface {
 
 	GetEvents(ctx context.Context, dateFrom, dateTo time.Time) ([]model.Event, error)
 	IsTimeFree(ctx context.Context, excludeId int, dateFrom, dateTo time.Time) (bool, error)
+
+	DeleteEventsOlderThan(ctx context.Context, date time.Time) (int64, error)
 }
 
 func NewEventsService(eventsStorage EventsStorage) *EventsService {
@@ -79,4 +81,8 @@ func (s *EventsService) GetEventsForWeek(ctx context.Context, date time.Time) ([
 func (s *EventsService) GetEventsForMonth(ctx context.Context, date time.Time) ([]model.Event, error) {
 	dateTo := date.AddDate(0, 1, 0)
 	return s.eventsStorage.GetEvents(ctx, date, dateTo)
+}
+
+func (s *EventsService) RemoveEventsOlderThan(ctx context.Context, date time.Time) (int64, error) {
+	return s.eventsStorage.DeleteEventsOlderThan(ctx, date)
 }
