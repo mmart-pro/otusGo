@@ -181,6 +181,31 @@ func (s *Storage) IsTimeFree(ctx context.Context, excludeId int, dateFrom, dateT
 	return cnt == 0, nil
 }
 
+func (s *Storage) DeleteEventsOlderThan(ctx context.Context, date time.Time) (int64, error) {
+	q := `
+		delete
+		from events
+		where date_from < :date
+	`
+	result, err := s.db.NamedExecContext(ctx, q, map[string]interface{}{
+		"date": date,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	if rowsAffected < 1 {
+		return 0, errors.ErrEventNotFound
+	}
+
+	return rowsAffected, nil
+}
+
 func namedSelect(db *sqlx.DB, ctx context.Context, query string, args interface{}) ([]model.Event, error) {
 	rows, err := db.NamedQueryContext(ctx, query, args)
 	if err != nil {

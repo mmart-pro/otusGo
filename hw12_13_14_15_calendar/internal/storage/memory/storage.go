@@ -116,6 +116,22 @@ func (s *Storage) IsTimeFree(_ context.Context, excludeId int, timeFrom, timeTo 
 	return true, nil
 }
 
+func (s *Storage) DeleteEventsOlderThan(_ context.Context, date time.Time) (int64, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	rowsAffected := 0
+	for i := 0; i < len(s.events); i++ {
+		if s.events[i].StartDatetime.Compare(date) < 0 {
+			s.events[i] = s.events[len(s.events)-1]
+			s.events = s.events[:len(s.events)-1]
+			rowsAffected++
+		}
+	}
+
+	return int64(rowsAffected), nil
+}
+
 func indexById(src []model.Event, eventId int) int {
 	// return slices.IndexFunc(src, func(el model.Event) bool { return v.Id == eventId })
 	for i, v := range src {
