@@ -12,6 +12,7 @@ type Event struct {
 	Description     string    `db:"description"`
 	UserId          int       `db:"user_id"`
 	NotifyBeforeMin int       `db:"notify_before_min"`
+	IsNotified      bool      `db:"is_notified"`
 }
 
 func (e Event) ValidPeriod() bool {
