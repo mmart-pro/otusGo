@@ -37,6 +37,12 @@ type RabbitConfig struct {
 	Queue    string `json:"queue"`
 }
 
+type TasksConfig struct {
+	CleanupIntervalMin     int32 `json:"cleanup_interval_min"`
+	CleanupPeriodDays      int32 `json:"cleanup_period_days"`
+	NotifyCheckIntervalMin int32 `json:"notify_check_interval_min"`
+}
+
 type CalendarConfig struct {
 	LoggerConfig  LoggerConfig   `json:"logger"`
 	HttpConfig    EndpointConfig `json:"http"`
@@ -48,6 +54,7 @@ type SchedulerConfig struct {
 	LoggerConfig  LoggerConfig  `json:"logger"`
 	StorageConfig StorageConfig `json:"storage"`
 	RabbitConfig  RabbitConfig  `json:"rabbit"`
+	TasksConfig   TasksConfig   `json:"tasks"`
 }
 
 type SenderConfig struct {
