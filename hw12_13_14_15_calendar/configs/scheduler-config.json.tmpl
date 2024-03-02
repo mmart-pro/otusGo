@@ -1,0 +1,21 @@
+{
+    "logger": {
+        "level": "${SCHEDULER_LOGGGER_LEVEL}",
+        "logfile": "${SCHEDULER_LOGGGER_FILE}"
+    },
+    "storage": {
+        "useDb": ${SCHEDULER_STORAGE_USE_DB},
+        "host": "${SCHEDULER_STORAGE_HOST}",
+        "port": ${SCHEDULER_STORAGE_PORT},
+        "user": "${SCHEDULER_STORAGE_USER}",
+        "password": "${SCHEDULER_STORAGE_PASSWORD}",
+        "database": "${SCHEDULER_STORAGE_DB_NAME}"
+    },
+    "rabbit": {
+        "host": "${SCHEDULER_RABBIT_HOST}",
+        "port": "${SCHEDULER_RABBIT_PORT}",
+        "user": "${SCHEDULER_RABBIT_USER}",
+        "password": "${SCHEDULER_RABBIT_PASSWORD}",
+        "queue": "${SCHEDULER_RABBIT_QUEUE}"
+    }    
+}

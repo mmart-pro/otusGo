@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/config"
-	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/logger"
 	grpcserver "github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/server/grpc"
 	httpserver "github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/service/events"
 	memorystorage "github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/storage/sql"
+	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/pkg/logger"
 )
 
 type ConnectableStorage interface {
@@ -23,10 +23,10 @@ type ConnectableStorage interface {
 }
 
 type Calendar struct {
-	cfg config.Config
+	cfg config.CalendarConfig
 }
 
-func NewCalendar(cfg config.Config) *Calendar {
+func NewCalendar(cfg config.CalendarConfig) *Calendar {
 	return &Calendar{
 		cfg: cfg,
 	}

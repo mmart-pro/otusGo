@@ -29,25 +29,57 @@ type StorageConfig struct {
 	Database string `json:"database"`
 }
 
-type Config struct {
+type RabbitConfig struct {
+	Host     string `json:"host"`
+	Port     int16  `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Queue    string `json:"queue"`
+}
+
+type CalendarConfig struct {
 	LoggerConfig  LoggerConfig   `json:"logger"`
 	HttpConfig    EndpointConfig `json:"http"`
 	GrpcConfig    EndpointConfig `json:"grpc"`
 	StorageConfig StorageConfig  `json:"storage"`
 }
 
-func NewConfig(filename string) (Config, error) {
-	var cfg Config
+type SchedulerConfig struct {
+	LoggerConfig  LoggerConfig  `json:"logger"`
+	StorageConfig StorageConfig `json:"storage"`
+	RabbitConfig  RabbitConfig  `json:"rabbit"`
+}
 
+type SenderConfig struct {
+	LoggerConfig LoggerConfig `json:"logger"`
+	RabbitConfig RabbitConfig `json:"rabbit"`
+}
+
+func NewCalendarConfig(filename string) (CalendarConfig, error) {
+	var cfg CalendarConfig
+	return cfg, newConfig(filename, &cfg)
+}
+
+func NewSchedulerConfig(filename string) (SchedulerConfig, error) {
+	var cfg SchedulerConfig
+	return cfg, newConfig(filename, &cfg)
+}
+
+func NewSenderConfig(filename string) (SenderConfig, error) {
+	var cfg SenderConfig
+	return cfg, newConfig(filename, &cfg)
+}
+
+func newConfig(filename string, dest interface{}) error {
 	arr, err := os.ReadFile(filename)
 	if err != nil {
-		return cfg, err
+		return err
 	}
 
-	err = json.Unmarshal(arr, &cfg)
+	err = json.Unmarshal(arr, dest)
 	if err != nil {
-		return cfg, err
+		return err
 	}
 
-	return cfg, nil
+	return nil
 }
