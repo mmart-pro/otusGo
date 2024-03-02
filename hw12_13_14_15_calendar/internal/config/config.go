@@ -31,7 +31,7 @@ type StorageConfig struct {
 
 type RabbitConfig struct {
 	Host     string `json:"host"`
-	Port     int16  `json:"port"`
+	Port     string `json:"port"`
 	User     string `json:"user"`
 	Password string `json:"password"`
 	Queue    string `json:"queue"`
