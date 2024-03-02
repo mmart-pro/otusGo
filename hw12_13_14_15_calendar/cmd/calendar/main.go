@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/app"
+	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/config"
 	flag "github.com/spf13/pflag"
 )
 
@@ -30,7 +31,13 @@ func main() {
 		return
 	}
 
-	err := app.NewCalendar(*configFlag).
+	// config
+	cfg, err := config.NewConfig(*configFlag)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = app.NewCalendar(cfg).
 		Startup(context.Background())
 	if err != nil {
 		log.Fatal(err)

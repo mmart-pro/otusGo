@@ -8,25 +8,11 @@ import (
 	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/errors"
 	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/model"
 	memorystorage "github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/storage/memory"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
-type MockLogger struct {
-	mock.Mock
-}
-
-func (m *MockLogger) Debugf(msg string, args ...interface{}) {}
-func (m *MockLogger) Infof(msg string, args ...interface{})  {}
-func (m *MockLogger) Errorf(msg string, args ...interface{}) {}
-func (m *MockLogger) Fatalf(msg string, args ...interface{}) {}
-
-type MockEventsStorage struct {
-	mock.Mock
-}
-
 func TestCreateEvent(t *testing.T) {
-	service := NewEventsService(new(MockLogger), memorystorage.NewStorage())
+	service := NewEventsService(memorystorage.NewStorage())
 	ctx := context.Background()
 
 	event := model.Event{
@@ -60,7 +46,7 @@ func TestCreateEvent(t *testing.T) {
 }
 
 func TestModifyEvent(t *testing.T) {
-	service := NewEventsService(new(MockLogger), memorystorage.NewStorage())
+	service := NewEventsService(memorystorage.NewStorage())
 	ctx := context.Background()
 
 	event := model.Event{
@@ -121,7 +107,7 @@ func TestModifyEvent(t *testing.T) {
 }
 
 func TestRemoveEvent(t *testing.T) {
-	service := NewEventsService(new(MockLogger), memorystorage.NewStorage())
+	service := NewEventsService(memorystorage.NewStorage())
 	ctx := context.Background()
 
 	// ошибка на событие не найдено
@@ -150,7 +136,7 @@ func TestRemoveEvent(t *testing.T) {
 }
 
 func TestGetEvent(t *testing.T) {
-	service := NewEventsService(new(MockLogger), memorystorage.NewStorage())
+	service := NewEventsService(memorystorage.NewStorage())
 	ctx := context.Background()
 
 	// создаём
@@ -175,7 +161,7 @@ func TestGetEvent(t *testing.T) {
 }
 
 func TestGetEventFor(t *testing.T) {
-	service := NewEventsService(new(MockLogger), memorystorage.NewStorage())
+	service := NewEventsService(memorystorage.NewStorage())
 	ctx := context.Background()
 
 	// создаём

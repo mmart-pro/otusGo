@@ -9,6 +9,7 @@ import (
 
 	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/config"
 	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/logger"
+	grpcserver "github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/server/grpc"
 	httpserver "github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/service/events"
 	memorystorage "github.com/mmart-pro/otusGo/hw12_13_14_15_calendar/internal/storage/memory"
@@ -22,31 +23,25 @@ type ConnectableStorage interface {
 }
 
 type Calendar struct {
-	configFile string
+	cfg config.Config
 }
 
-func NewCalendar(configFile string) *Calendar {
+func NewCalendar(cfg config.Config) *Calendar {
 	return &Calendar{
-		configFile: configFile,
+		cfg: cfg,
 	}
 }
 
 func (app Calendar) Startup(ctx context.Context) error {
-	// config
-	cfg, err := config.NewConfig(app.configFile)
-	if err != nil {
-		return fmt.Errorf("error read config: %w", err)
-	}
-
 	// logger
-	logg, err := logger.NewLogger(cfg.LoggerConfig.Level, cfg.LoggerConfig.LogFile)
+	logg, err := logger.NewLogger(app.cfg.LoggerConfig.Level, app.cfg.LoggerConfig.LogFile)
 	if err != nil {
 		return fmt.Errorf("can't start logg: %w", err)
 	}
 	defer logg.Close()
 
 	// IRL exclude secrets
-	logg.Debugf("service config: %+v", cfg)
+	logg.Debugf("service config: %+v", app.cfg)
 
 	ctx, cancel := signal.NotifyContext(ctx,
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -54,13 +49,13 @@ func (app Calendar) Startup(ctx context.Context) error {
 
 	// storage
 	var storage ConnectableStorage
-	if cfg.StorageConfig.UseDb {
+	if app.cfg.StorageConfig.UseDb {
 		storage = sqlstorage.NewStorage(
-			cfg.StorageConfig.Host,
-			cfg.StorageConfig.Port,
-			cfg.StorageConfig.User,
-			cfg.StorageConfig.Password,
-			cfg.StorageConfig.Database)
+			app.cfg.StorageConfig.Host,
+			app.cfg.StorageConfig.Port,
+			app.cfg.StorageConfig.User,
+			app.cfg.StorageConfig.Password,
+			app.cfg.StorageConfig.Database)
 	} else {
 		storage = memorystorage.NewStorage()
 	}
@@ -70,11 +65,11 @@ func (app Calendar) Startup(ctx context.Context) error {
 	defer storage.Close()
 
 	// events service
-	eventsService := events.NewEventsService(logg, storage)
+	eventsService := events.NewEventsService(storage)
 
 	logg.Infof("starting calendar api...")
 
-	http := httpserver.NewServer(cfg.HttpConfig, logg, eventsService)
+	http := httpserver.NewServer(app.cfg.HttpConfig.GetEndpoint(), app.cfg.GrpcConfig.GetEndpoint(), logg, eventsService)
 	go func() {
 		if err := http.Start(ctx); err != nil {
 			logg.Errorf("failed to start http server %s", err.Error())
@@ -82,11 +77,20 @@ func (app Calendar) Startup(ctx context.Context) error {
 		}
 	}()
 
+	grpc := grpcserver.NewServer(app.cfg.GrpcConfig.GetEndpoint(), logg, eventsService)
+	go func() {
+		if err := grpc.Start(); err != nil {
+			logg.Errorf("failed to start grpc server %s", err.Error())
+			cancel()
+		}
+	}()
+
 	<-ctx.Done()
+
+	grpc.Stop()
 
 	// 3 sec to stop
 	stopContext, stopTimeout := context.WithTimeout(context.Background(), time.Second*3)
-	defer stopTimeout()
 
 	logg.Debugf("stopping calendar api...")
 

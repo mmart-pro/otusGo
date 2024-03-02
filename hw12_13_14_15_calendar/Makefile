@@ -15,7 +15,7 @@ dirs:
 config: dirs
 	env `cat ${ENV_NAME}` envsubst < ${CFG_TMPL_API} > ${CFG_API};
 
-build: config
+build: generate config
 	go build -v -o $(BIN_API) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
 run: build migrate
@@ -45,4 +45,10 @@ lint: install-lint-deps
 migrate:
 	goose -dir migrations postgres "host=$(STORAGE_HOST) port=$(STORAGE_PORT) user=$(STORAGE_USER) password=$(STORAGE_PASSWORD) dbname=$(STORAGE_DB_NAME) sslmode=disable" up
 
-.PHONY: dirs config build run build-img run-img version test lint migrate
+generate:
+	go generate ./...
+#	rm -Rf internal/server/grpc/pb
+#	mkdir internal/server/grpc/pb
+#	protoc -I ./api --go_out=. --go-grpc_out=. --grpc-gateway_out=. --openapiv2_out=. api/eventservice/eventservice.proto
+
+.PHONY: dirs config build run build-img run-img version test lint migrate generate

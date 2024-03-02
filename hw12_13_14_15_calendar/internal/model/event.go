@@ -10,7 +10,7 @@ type Event struct {
 	StartDatetime   time.Time `db:"start_date_time"`
 	EndDatetime     time.Time `db:"end_date_time"`
 	Description     string    `db:"description"`
-	UserId          int       `db:"user_ud"`
+	UserId          int       `db:"user_id"`
 	NotifyBeforeMin int       `db:"notify_before_min"`
 }
 
