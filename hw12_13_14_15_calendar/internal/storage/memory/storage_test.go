@@ -228,6 +228,24 @@ func TestDeleteEventsOlderThan(t *testing.T) {
 	require.Equal(t, inmem.events[0].StartDatetime, time.Date(2024, 1, 6, 20, 0, 0, 0, time.Local))
 }
 
+func TestSetIsNotified(t *testing.T) {
+	inmem := NewStorage()
+	ctx := context.Background()
+
+	event := model.Event{
+		StartDatetime: time.Date(2024, 1, 5, 20, 0, 0, 0, time.Local),
+		EndDatetime:   time.Date(2024, 1, 5, 20, 15, 0, 0, time.Local),
+		IsNotified:    false,
+	}
+	id, err := inmem.InsertEvent(ctx, event)
+	require.NoError(t, err)
+
+	err = inmem.SetIsNotified(ctx, id)
+	require.NoError(t, err)
+
+	require.Equal(t, true, inmem.events[0].IsNotified)
+}
+
 func TestParallel(t *testing.T) {
 	inmem := NewStorage()
 	ctx := context.Background()

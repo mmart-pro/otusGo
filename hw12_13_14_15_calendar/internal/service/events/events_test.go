@@ -236,6 +236,28 @@ func TestRemoveEventOlderThan(t *testing.T) {
 	require.ErrorIs(t, err, errors.ErrEventNotFound)
 }
 
+func TestSetIsNotified(t *testing.T) {
+	service := NewEventsService(memorystorage.NewStorage())
+	ctx := context.Background()
+
+	event := model.Event{
+		StartDatetime: time.Date(2024, 1, 5, 20, 0, 0, 0, time.Local),
+		EndDatetime:   time.Date(2024, 1, 5, 20, 15, 0, 0, time.Local),
+		IsNotified:    false,
+	}
+
+	id, err := service.CreateEvent(ctx, event)
+	require.NoError(t, err)
+
+	err = service.SetIsNotified(ctx, id)
+	require.NoError(t, err)
+
+	// Проверка, что событие было изменено в хранилище
+	storedEvent, err := service.GetEvent(ctx, id)
+	require.NoError(t, err)
+	require.Equal(t, true, storedEvent.IsNotified)
+}
+
 func events() []model.Event {
 	result := make([]model.Event, 0, 10)
 	for i := 0; i < 10; i++ {

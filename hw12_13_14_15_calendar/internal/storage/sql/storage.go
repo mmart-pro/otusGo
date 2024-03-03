@@ -206,6 +206,31 @@ func (s *Storage) DeleteEventsOlderThan(ctx context.Context, date time.Time) (in
 	return rowsAffected, nil
 }
 
+func (s *Storage) SetIsNotified(ctx context.Context, eventId int) error {
+	q := `
+		update events
+		set
+			is_notified = true
+		where
+			id = $1
+	`
+	result, err := s.db.ExecContext(ctx, q, eventId)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected < 1 {
+		return errors.ErrEventNotFound
+	}
+
+	return nil
+}
+
 func namedSelect(db *sqlx.DB, ctx context.Context, query string, args interface{}) ([]model.Event, error) {
 	rows, err := db.NamedQueryContext(ctx, query, args)
 	if err != nil {

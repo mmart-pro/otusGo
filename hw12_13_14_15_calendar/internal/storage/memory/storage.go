@@ -132,6 +132,20 @@ func (s *Storage) DeleteEventsOlderThan(_ context.Context, date time.Time) (int6
 	return int64(rowsAffected), nil
 }
 
+func (s *Storage) SetIsNotified(ctx context.Context, eventId int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	i := indexById(s.events, eventId)
+	if i < 0 {
+		return errors.ErrEventNotFound
+	}
+
+	s.events[i].IsNotified = true
+
+	return nil
+}
+
 func indexById(src []model.Event, eventId int) int {
 	// return slices.IndexFunc(src, func(el model.Event) bool { return v.Id == eventId })
 	for i, v := range src {
