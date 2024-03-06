@@ -38,9 +38,9 @@ type RabbitConfig struct {
 }
 
 type TasksConfig struct {
-	CleanupIntervalMin     int32 `json:"cleanup_interval_min"`
-	CleanupPeriodDays      int32 `json:"cleanup_period_days"`
-	NotifyCheckIntervalMin int32 `json:"notify_check_interval_min"`
+	CleanupIntervalMin     int32 `json:"cleanupIntervalMin"`
+	CleanupPeriodDays      int32 `json:"cleanupPeriodDays"`
+	NotifyCheckIntervalMin int32 `json:"notifyCheckIntervalMin"`
 }
 
 type CalendarConfig struct {
