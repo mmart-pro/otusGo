@@ -141,7 +141,8 @@ func (s *Storage) GetEvents(ctx context.Context, dateFrom, dateTo time.Time) ([]
 			end_date_time,
 			description,
 			user_id,
-			notify_before_min
+			notify_before_min,
+			is_notified
 		from events
 		where start_date_time >= :date_from and start_date_time < :date_to
 	`
@@ -185,7 +186,7 @@ func (s *Storage) DeleteEventsOlderThan(ctx context.Context, date time.Time) (in
 	q := `
 		delete
 		from events
-		where date_from < :date
+		where start_date_time < :date
 	`
 	result, err := s.db.NamedExecContext(ctx, q, map[string]interface{}{
 		"date": date,
