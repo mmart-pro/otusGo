@@ -1,5 +1,6 @@
 package internalgrpc
 
+//nolint: lll
 //go:generate protoc -I ../../../api --go_out=../../../ --go-grpc_out=../../../ --grpc-gateway_out=../../../ --openapiv2_out=../../../ ../../../api/eventservice/eventservice.proto
 
 import (

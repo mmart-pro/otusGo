@@ -1,0 +1,22 @@
+{
+    "logger": {
+        "level": "${CALENDAR_LOGGGER_LEVEL}",
+        "logfile": "${CALENDAR_LOGGGER_FILE}"
+    },
+    "grpc": {
+        "host": "${CALENDAR_GRPC_HOST}",
+        "port": "${CALENDAR_GRPC_PORT}"
+    },
+    "http": {
+        "host": "${CALENDAR_HTTP_HOST}",
+        "port": "${CALENDAR_HTTP_PORT}"
+    },
+    "storage": {
+        "useDb": ${CALENDAR_STORAGE_USE_DB},
+        "host": "${CALENDAR_STORAGE_HOST}",
+        "port": ${CALENDAR_STORAGE_PORT},
+        "user": "${CALENDAR_STORAGE_USER}",
+        "password": "${CALENDAR_STORAGE_PASSWORD}",
+        "database": "${CALENDAR_STORAGE_DB_NAME}"
+    }
+}

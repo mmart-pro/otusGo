@@ -141,7 +141,8 @@ func (s *Storage) GetEvents(ctx context.Context, dateFrom, dateTo time.Time) ([]
 			end_date_time,
 			description,
 			user_id,
-			notify_before_min
+			notify_before_min,
+			is_notified
 		from events
 		where start_date_time >= :date_from and start_date_time < :date_to
 	`
@@ -179,6 +180,56 @@ func (s *Storage) IsTimeFree(ctx context.Context, excludeId int, dateFrom, dateT
 	var cnt int
 	rows.Scan(&cnt)
 	return cnt == 0, nil
+}
+
+func (s *Storage) DeleteEventsOlderThan(ctx context.Context, date time.Time) (int64, error) {
+	q := `
+		delete
+		from events
+		where start_date_time < :date
+	`
+	result, err := s.db.NamedExecContext(ctx, q, map[string]interface{}{
+		"date": date,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	if rowsAffected < 1 {
+		return 0, errors.ErrEventNotFound
+	}
+
+	return rowsAffected, nil
+}
+
+func (s *Storage) SetIsNotified(ctx context.Context, eventId int) error {
+	q := `
+		update events
+		set
+			is_notified = true
+		where
+			id = $1
+	`
+	result, err := s.db.ExecContext(ctx, q, eventId)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected < 1 {
+		return errors.ErrEventNotFound
+	}
+
+	return nil
 }
 
 func namedSelect(db *sqlx.DB, ctx context.Context, query string, args interface{}) ([]model.Event, error) {

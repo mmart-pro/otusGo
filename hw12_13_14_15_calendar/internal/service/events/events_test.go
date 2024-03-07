@@ -191,6 +191,73 @@ func TestGetEventFor(t *testing.T) {
 	require.Equal(t, 7, len(stored))
 }
 
+func TestRemoveEventOlderThan(t *testing.T) {
+	service := NewEventsService(memorystorage.NewStorage())
+	ctx := context.Background()
+
+	// ошибка на событие не найдено
+	err := service.RemoveEvent(ctx, 1)
+	require.Error(t, err)
+	require.ErrorIs(t, err, errors.ErrEventNotFound)
+
+	// создаём
+
+	_, err = service.CreateEvent(ctx, model.Event{
+		StartDatetime: time.Date(2024, 1, 5, 20, 0, 0, 0, time.Local),
+		EndDatetime:   time.Date(2024, 1, 5, 20, 15, 0, 0, time.Local),
+	})
+	require.NoError(t, err)
+
+	_, err = service.CreateEvent(ctx, model.Event{
+		StartDatetime: time.Date(2024, 1, 5, 20, 15, 0, 0, time.Local),
+		EndDatetime:   time.Date(2024, 1, 5, 20, 30, 0, 0, time.Local),
+	})
+	require.NoError(t, err)
+
+	_, err = service.CreateEvent(ctx, model.Event{
+		StartDatetime: time.Date(2024, 1, 6, 20, 0, 0, 0, time.Local),
+		EndDatetime:   time.Date(2024, 1, 6, 20, 15, 0, 0, time.Local),
+	})
+	require.NoError(t, err)
+
+	// удаляем
+	rows, err := service.RemoveEventsOlderThan(ctx, time.Date(2024, 1, 5, 20, 15, 0, 1, time.Local))
+	require.NoError(t, err)
+
+	// Проверка
+	require.Equal(t, int64(2), rows)
+
+	_, err = service.GetEvent(ctx, 1)
+	require.Error(t, err)
+	require.ErrorIs(t, err, errors.ErrEventNotFound)
+
+	_, err = service.GetEvent(ctx, 2)
+	require.Error(t, err)
+	require.ErrorIs(t, err, errors.ErrEventNotFound)
+}
+
+func TestSetIsNotified(t *testing.T) {
+	service := NewEventsService(memorystorage.NewStorage())
+	ctx := context.Background()
+
+	event := model.Event{
+		StartDatetime: time.Date(2024, 1, 5, 20, 0, 0, 0, time.Local),
+		EndDatetime:   time.Date(2024, 1, 5, 20, 15, 0, 0, time.Local),
+		IsNotified:    false,
+	}
+
+	id, err := service.CreateEvent(ctx, event)
+	require.NoError(t, err)
+
+	err = service.SetIsNotified(ctx, id)
+	require.NoError(t, err)
+
+	// Проверка, что событие было изменено в хранилище
+	storedEvent, err := service.GetEvent(ctx, id)
+	require.NoError(t, err)
+	require.Equal(t, true, storedEvent.IsNotified)
+}
+
 func events() []model.Event {
 	result := make([]model.Event, 0, 10)
 	for i := 0; i < 10; i++ {

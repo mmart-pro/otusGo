@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -32,13 +31,13 @@ func main() {
 	}
 
 	// config
-	cfg, err := config.NewCalendarConfig(*configFlag)
+	cfg, err := config.NewSchedulerConfig(*configFlag)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = app.NewCalendar(cfg).
-		Startup(context.Background())
+	err = app.NewScheduler(cfg).
+		Startup()
 	if err != nil {
 		log.Fatal(err)
 	}

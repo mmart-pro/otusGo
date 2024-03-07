@@ -29,7 +29,7 @@ func TestWebApiTestSuite(t *testing.T) {
 }
 
 func (suite *WebApiTestSuite) SetupTest() {
-	cfg := config.Config{
+	cfg := config.CalendarConfig{
 		LoggerConfig: config.LoggerConfig{
 			Level:   "debug",
 			LogFile: "",
